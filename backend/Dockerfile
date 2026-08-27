@@ -1,12 +1,15 @@
 FROM node:20-alpine
+
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json ./
+
+RUN npm install --no-audit --no-fund
 
 COPY . .
-RUN npx prisma generate
+
+RUN ./node_modules/.bin/prisma generate
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && node src/server.js"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node prisma/seed.js && node src/server.js"]
