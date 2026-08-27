@@ -1,1 +1,30 @@
-{"name":"skillora-production","private":true,"workspaces":["frontend","backend"],"scripts":{"dev":"npm --workspace backend run dev","build":"npm --workspace frontend run build && npm --workspace backend run test"}}
+{
+  "name": "skillora-api",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "build": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "node prisma/seed.js",
+    "start": "node src/server.js",
+    "start:production": "prisma migrate deploy && prisma generate && node prisma/seed.js && node src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@prisma/client": "latest",
+    "bcryptjs": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "express-rate-limit": "latest",
+    "helmet": "latest",
+    "jsonwebtoken": "latest",
+    "pino-http": "latest",
+    "prisma": "latest",
+    "resend": "latest"
+  }
+}
