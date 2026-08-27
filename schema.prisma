@@ -1,0 +1,19 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+model User { id String @id @default(cuid()) name String email String @unique passwordHash String language String @default("en") emailVerified Boolean @default(false) createdAt DateTime @default(now()) sessions RefreshSession[] lessonSessions LessonSession[] progress LearnerProgress[] attempts TaskAttempt[] certificates Certificate[] verificationTokens EmailVerificationToken[] resetTokens PasswordResetToken[] }
+model Lesson { id String @id title String area String sortOrder Int @unique sessions LessonSession[] progress LearnerProgress[] }
+model LessonSession { id String @id @default(cuid()) userId String lessonId String state Json attempts Int @default(0) hintsUsed Int @default(0) updatedAt DateTime @updatedAt user User @relation(fields:[userId],references:[id],onDelete:Cascade) lesson Lesson @relation(fields:[lessonId],references:[id],onDelete:Cascade) @@unique([userId,lessonId]) }
+model LearnerProgress { id String @id @default(cuid()) userId String lessonId String status String @default("NOT_STARTED") score Int? updatedAt DateTime @updatedAt user User @relation(fields:[userId],references:[id],onDelete:Cascade) lesson Lesson @relation(fields:[lessonId],references:[id],onDelete:Cascade) @@unique([userId,lessonId]) }
+model TaskAttempt { id String @id @default(cuid()) userId String lessonId String taskId String attemptNo Int correct Boolean input Json? createdAt DateTime @default(now()) user User @relation(fields:[userId],references:[id],onDelete:Cascade) }
+model RefreshSession { id String @id @default(cuid()) userId String tokenHash String @unique expiresAt DateTime revokedAt DateTime? user User @relation(fields:[userId],references:[id],onDelete:Cascade) }
+model EmailVerificationToken { id String @id @default(cuid()) userId String tokenHash String @unique expiresAt DateTime usedAt DateTime? user User @relation(fields:[userId],references:[id],onDelete:Cascade) }
+model PasswordResetToken { id String @id @default(cuid()) userId String tokenHash String @unique expiresAt DateTime usedAt DateTime? user User @relation(fields:[userId],references:[id],onDelete:Cascade) }
+model Certificate {
+  id String @id @default(cuid())
+  certificateId String @unique
+  verificationCode String @unique
+  userId String @unique
+  issuedAt DateTime @default(now())
+  score Int?
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+}
