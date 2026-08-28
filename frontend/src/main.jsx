@@ -1,5 +1,5 @@
 import React,{useState,useEffect}from'react';import{createRoot}from'react-dom/client';import'./styles.css';
-const API=import.meta.env.VITE_API_URL||'http://localhost:4000/api';
+const API = import.meta.env.VITE_API_URL;
 const req=(p,o={})=>fetch(API+p,{...o,headers:{'Content-Type':'application/json',Authorization:localStorage.access?`Bearer ${localStorage.access}`:'',...(o.headers||{})}});
 function App(){const[page,setPage]=useState('home'),[auth,setAuth]=useState(!!localStorage.access),[form,setForm]=useState({name:'',email:'',password:''}),[msg,setMsg]=useState(''),[lessons,setLessons]=useState([]);
 useEffect(()=>{if(auth)req('/lessons').then(r=>r.ok?r.json():[]).then(setLessons)},[auth]);
