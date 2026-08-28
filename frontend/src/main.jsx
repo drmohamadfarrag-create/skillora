@@ -1,13 +1,172 @@
-import React,{useState,useEffect}from'react';import{createRoot}from'react-dom/client';import'./styles.css';
+import React, { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import "./styles.css";
+
 const API = import.meta.env.VITE_API_URL;
-const req=(p,o={})=>fetch(API+p,{...o,headers:{'Content-Type':'application/json',Authorization:localStorage.access?`Bearer ${localStorage.access}`:'',...(o.headers||{})}});
-function App(){const[page,setPage]=useState('home'),[auth,setAuth]=useState(!!localStorage.access),[form,setForm]=useState({name:'',email:'',password:''}),[msg,setMsg]=useState(''),[lessons,setLessons]=useState([]);
-useEffect(()=>{if(auth)req('/lessons').then(r=>r.ok?r.json():[]).then(setLessons)},[auth]);
-async function register(e){e.preventDefault();const r=await req('/auth/register',{method:'POST',body:JSON.stringify(form)}),d=await r.json();setMsg(r.ok?`Account created. Development verification token: ${d.verificationToken}`:d.error)}
-async function verify(){const token=msg.split(': ').pop();const r=await req('/auth/verify-email',{method:'POST',body:JSON.stringify({token})});setMsg((await r.json()).verified?'Email verified. You can now sign in.':'Verification failed.')}
-async function login(e){e.preventDefault();const r=await req('/auth/login',{method:'POST',body:JSON.stringify(form)}),d=await r.json();if(!r.ok)return setMsg(d.error);localStorage.access=d.accessToken;localStorage.refresh=d.refreshToken;setAuth(true);setPage('library')}
-if(!auth)return <main><h1>SKILLORA</h1><p>Learn it. Use it. Own it.</p><section className="card"><h2>Create your account</h2><form onSubmit={register}><input placeholder="Name" onChange={e=>setForm({...form,name:e.target.value})}/><input placeholder="Email" onChange={e=>setForm({...form,email:e.target.value})}/><input type="password" placeholder="Password (8+ characters)" onChange={e=>setForm({...form,password:e.target.value})}/><button>Create account</button></form>{msg&&<><p>{msg}</p><button onClick={verify}>Verify development email</button></>}<hr/><h2>Sign in</h2><form onSubmit={login}><input placeholder="Email" onChange={e=>setForm({...form,email:e.target.value})}/><input type="password" placeholder="Password" onChange={e=>setForm({...form,password:e.target.value})}/><button>Sign in</button></form></section></main>;
-return <main><header><b>SKILLORA</b><nav>{['home','library','achievements','certificate'].map(x=><button onClick={()=>setPage(x)}>{x}</button>)}</nav></header>{page==='home'&&<section className="card"><h1>Welcome back</h1><p>Your learning platform is connected to persistent backend services.</p><h2>17 practical lessons. One complete pathway.</h2></section>}{page==='library'&&<section><h1>Learning Library</h1>{lessons.map(l=><article className="card"><b>Lesson {l.sortOrder}</b><h3>{l.title}</h3><p>{l.area}</p><button onClick={()=>alert('Lesson engine route ready for '+l.id)}>Start lesson</button></article>)}</section>}{page==='achievements'&&<Achievements/>}{page==='certificate'&&<Certificate/>}</main>}
-function Achievements(){const[a,setA]=useState([]);useEffect(()=>{req('/achievements').then(r=>r.json()).then(setA)},[]);return <section><h1>Achievements</h1>{a.map(x=><article className="card">{x.earned?'🏆':'🔒'} {x.name}</article>)}</section>}
-function Certificate(){const[code,setCode]=useState(''),[out,setOut]=useState(null);return <section className="card"><h1>Verify Certificate</h1><input value={code} onChange={e=>setCode(e.target.value)} placeholder="Verification code"/><button onClick={async()=>setOut(await (await req('/certificates/verify/'+code)).json())}>Verify</button>{out&&<pre>{JSON.stringify(out,null,2)}</pre>}</section>}
-createRoot(document.getElementById('root')).render(<App/>);
+
+async function request(path, options = {}) {
+  if (!API) {
+    throw new Error("VITE_API_URL is not configured");
+  }
+
+  const response = await fetch(`${API}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed: ${response.status}`);
+  }
+
+  return data;
+}
+
+function App() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function register(event) {
+    event.preventDefault();
+    setMessage("");
+    setLoading(true);
+
+    try {
+      const data = await request("/auth/register", {
+        method: "POST",
+        body: JSON.stringify(form),
+      });
+
+      setMessage(
+        data.verificationRequired
+          ? "Account created. Please verify your email."
+          : "Account created successfully."
+      );
+    } catch (error) {
+      console.error("REGISTER ERROR:", error);
+      setMessage(error.message || "Registration failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function login(event) {
+    event.preventDefault();
+    setMessage("");
+    setLoading(true);
+
+    try {
+      const data = await request("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      localStorage.setItem("skillora_access", data.accessToken);
+      localStorage.setItem("skillora_refresh", data.refreshToken);
+
+      setMessage(`Welcome ${data.user?.name || ""}! Login successful.`);
+    } catch (error) {
+      console.error("LOGIN ERROR:", error);
+      setMessage(error.message || "Login failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main>
+      <header>
+        <h1>SKILLORA</h1>
+        <p>Learn it. Use it. Own it.</p>
+      </header>
+
+      <section className="card">
+        <h2>Create your account</h2>
+
+        <form onSubmit={register}>
+          <input
+            type="text"
+            placeholder="Name"
+            value={form.name}
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+            required
+          />
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) =>
+              setForm({ ...form, email: e.target.value })
+            }
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password (8+ characters)"
+            value={form.password}
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+            minLength={8}
+            required
+          />
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating..." : "Create account"}
+          </button>
+        </form>
+
+        <hr />
+
+        <h2>Sign in</h2>
+
+        <form onSubmit={login}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) =>
+              setForm({ ...form, email: e.target.value })
+            }
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+            required
+          />
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+
+        {message && <p>{message}</p>}
+      </section>
+    </main>
+  );
+}
+
+createRoot(document.getElementById("root")).render(<App />);
