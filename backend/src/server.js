@@ -63,11 +63,36 @@ function requireAuth(req, res, next) {
 
 async function sendEmail({ to, subject, html }) {
   if (!resend || !process.env.EMAIL_FROM) {
-    console.log('EMAIL_PROVIDER_NOT_CONFIGURED', { to, subject });
+    console.error("EMAIL_PROVIDER_NOT_CONFIGURED", {
+      hasResendKey: Boolean(process.env.RESEND_API_KEY),
+      emailFrom: process.env.EMAIL_FROM || null
+    });
     return false;
   }
-  await resend.emails.send({ from: process.env.EMAIL_FROM, to, subject, html });
-  return true;
+
+  try {
+    const result = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
+      to,
+      subject,
+      html
+    });
+
+    console.log("RESEND_RESULT:", JSON.stringify(result));
+
+    if (result.error) {
+      throw new Error(
+        typeof result.error === "string"
+          ? result.error
+          : result.error.message || JSON.stringify(result.error)
+      );
+    }
+
+    return true;
+  } catch (error) {
+    console.error("EMAIL_SEND_FAILED:", error);
+    return false;
+  }
 }
 
 app.get('/healthz', async (req, res) => {
