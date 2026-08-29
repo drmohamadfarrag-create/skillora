@@ -26,6 +26,7 @@ async function sendEmail({ to, subject, html }) {
 
     console.log("EMAIL SENT SUCCESSFULLY");
     return true;
+
   } catch (error) {
     console.error("EMAIL SEND FAILED:", error.message || error);
     return false;
