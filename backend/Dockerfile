@@ -12,4 +12,4 @@ RUN ./node_modules/.bin/prisma generate
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node src/server.js"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && exec node src/server.js"]
