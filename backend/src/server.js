@@ -29,6 +29,9 @@ app.use(cors({
   }
 }));
 app.use(express.json({ limit: '1mb' }));
+app.get('/', (req, res) => {
+  res.json({ status: 'SKILLORA API is running' });
+});
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
