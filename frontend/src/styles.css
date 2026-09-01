@@ -1,0 +1,20 @@
+body{margin:0;background:#f5f8fc;color:#102a43;font-family:Arial}main{max-width:1000px;margin:auto;padding:30px}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}nav button{margin-inline-start:8px}.card{background:white;border:1px solid #dfe7f1;border-radius:14px;padding:20px;margin:12px 0}input{display:block;width:100%;box-sizing:border-box;padding:12px;margin:10px 0;border:1px solid #ccd8e6;border-radius:8px}button{padding:10px 16px;border:0;border-radius:8px;background:#1976d2;color:white;font-weight:bold;cursor:pointer}pre{white-space:pre-wrap}
+.lesson-progress{color:#627d98;font-weight:bold;margin:0 0 4px}
+table.sheet{border-collapse:collapse;margin:14px 0;width:100%;direction:ltr}
+table.sheet th,table.sheet td{border:1px solid #dfe7f1;padding:6px 10px;text-align:center;min-width:64px}
+table.sheet thead th{background:#eef3fa;color:#334e68}
+table.sheet tbody th{background:#eef3fa;color:#334e68}
+td.sheet-cell{background:white}
+td.sheet-cell.target{background:#eaf3ff;padding:2px}
+.formula-input{margin:0;padding:8px;width:100%;box-sizing:border-box;font-family:monospace;direction:ltr;text-align:left}
+.cell-btn{width:100%;background:white;color:#102a43;border:1px solid transparent;padding:8px;font-weight:normal;min-height:32px}
+.cell-btn:hover{background:#eaf3ff;border-color:#90b4e8}
+.options{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.option-btn{background:white;color:#102a43;border:1px solid #ccd8e6;text-align:start}
+.option-btn.selected{background:#1976d2;color:white;border-color:#1976d2}
+.feedback-ok{color:#0b7a3f;font-weight:bold}
+.feedback-bad{color:#b3261e;font-weight:bold}
+.hint{color:#8a6d00;background:#fff8e1;border:1px solid #ffe08a;border-radius:8px;padding:10px}
+.lesson-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+button.secondary{background:#eef3fa;color:#334e68}
+button:disabled{opacity:.5;cursor:not-allowed}
